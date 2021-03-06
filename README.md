@@ -1,3 +1,18 @@
 # DAN606
 Big Data Management
-THIS IS A TEST
+
+Software basics in Hadoop and Spark with example code to perform basic big data analysis.
+
+##Data Sets Explored
+
+###NYC Taxi Ride Data
+
+[Description](https://www1.nyc.gov/site/tlc/about/data-and-research.page) 
+	
+[Data](https://www1.nyc.gov/site/tlc/about/tlc-trip-record-data.page)
+
+###US Stock Market Data
+Description: 
+
+[Data](https://docs.intrinio.com/api-explorer?method=api_v2#%3Fmethod=download)  
+
