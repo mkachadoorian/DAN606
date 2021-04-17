@@ -1,7 +1,10 @@
 # spark modeling: regression
 # pyspark.ml
 
+#Needed to install numpy
+#pip3 install numpy --user 
 
+pyspark
 from pyspark.ml import Pipeline
 from pyspark.ml.stat import Correlation
 from pyspark.ml.feature import VectorAssembler
