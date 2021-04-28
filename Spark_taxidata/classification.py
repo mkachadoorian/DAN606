@@ -50,9 +50,6 @@ df = sc.read.format("csv").options(header='True').schema(schema).load("../../dan
 
 df.printSchema()
 
-# Limit Sample Size Due to Memory Issues That Will Be Encountered After Running Line 92
-df = sqlContext.createDataFrame(df.head(500000), df.schema) #not a random sample
-
 # handle dates AND time
 df=df.withColumn('pickup_time', fun.to_timestamp('tpep_pickup_datetime', "yyyy-MM-dd HH:mm:ss"))
 df=df.withColumn('pickup_hour', fun.hour("pickup_time"))
@@ -72,7 +69,6 @@ df_transformed = pipeline.fit(dffeat).transform(dffeat)
 df_input = df_transformed.select(resp_var, 'features').withColumnRenamed(resp_var, 'label')
 
 labelIndexer = StringIndexer(inputCol="label", outputCol="indexedLabel").fit(df_input)
-# WARNING "TaskSetManager:66 - Stage 20 contains a task of very large size (2904 KB). The maximum recommended task size is 100 KB" WEIRD BECAUSE THIS WAS NOT ENCOUNTERED WHEN DATA SIZE WAS NOT LIMITED BY CODE IN LINE 54
 
 # Automatically identify categorical features, and index them.
 # We specify maxCategories so features with > 4 distinct values are treated as continuous.
@@ -90,6 +86,7 @@ pipeline = Pipeline(stages=[labelIndexer, featureIndexer, dt])
 
 # Train model.  This also runs the indexers.
 model = pipeline.fit(trainingData)
+# WARNING "WARN  MemoryStore:66 - Not enough space to cache rdd_30_10 in memory! (computed 8.6 MB so far)" CAN BE IGNORED
 
 # Make predictions.
 predictions = model.transform(testData)
@@ -98,16 +95,17 @@ predictions = model.transform(testData)
 predictions.select("prediction", "indexedLabel", "features").show(5)
 
 predictions.select("prediction", "indexedLabel", "features").corr('prediction', 'indexedLabel')
-
+# Result: 0.567144117022276-r value for how training data fits testing data
 
 # Select (prediction, true label) and compute test error
 evaluator = MulticlassClassificationEvaluator(
     labelCol="indexedLabel", predictionCol="prediction", metricName="accuracy")
     
-    
 accuracy = evaluator.evaluate(predictions)
 print("Test Error = %g " % (1.0 - accuracy))
+# Result: Test Error = 0.0215698 
 
 treeModel = model.stages[2]
 # summary only
 print(treeModel)
+# Result: DecisionTreeClassificationModel (uid=DecisionTreeClassifier_4150802ed2e4951dd31c) of depth 5 with 61 nodes
